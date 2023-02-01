@@ -1,0 +1,38 @@
+#include <AFMotor.h>
+#include <Wire.h>
+#include <Adafruit_MCP4725.h> // to use MCP4725 DAC
+
+AF_DCMotor motor1(1);  // create motor objects to control the motors
+
+
+Adafruit_MCP4725 dac1;  // create object for DAC
+Adafruit_MCP4725 dac2;
+
+int speed1 = 0; // variable to store the motor speed
+int speed2 = 0;
+
+void setup() {
+  // Start the Wire library
+  Wire.begin();
+  // begin DAC
+  dac1.begin(0x62);
+  dac2.begin(0x63);
+}
+
+void loop() {
+  // read the value of the sliders
+  speed1 = analogRead(A0);
+  speed2 = analogRead(A1);
+  // convert the value to a usable range (0-255)
+  speed1 = map(speed1, 0, 1023, 0, 255);
+  speed2 = map(speed2, 0, 1023, 0, 255);
+  // set the speed of the motors
+  motor1.setSpeed(speed1);
+  
+  // set the speed to the DAC
+  dac1.setVoltage(speed1, false);
+  dac2.setVoltage(speed2, false);
+  
+  // drive forward
+  motor1.run(FORWARD);
+ 
