@@ -1,0 +1,28 @@
+const int analogPin = A0; // Analog input pin to read the value
+const int motorPin = 9;    // Digital pin connected to the motor
+int previousValue = 0;     // Variable to store the previous input value
+
+void setup() {
+  pinMode(motorPin, OUTPUT);
+}
+
+void loop() {
+  int value = analogRead(analogPin);   // Read the analog input
+  int delta = value - previousValue;    // Calculate the difference between the current and previous values
+  int speed = constrain(delta, -255, 255);  // Limit the speed to the PWM range
+
+  // If the speed is positive, move the motor forward
+  if (speed > 0) {
+    analogWrite(motorPin, speed);
+  } 
+  // If the speed is negative, move the motor backwards
+  else if (speed < 0) {
+    analogWrite(motorPin, abs(speed));
+  } 
+  // If the speed is 0, stop the motor
+  else {
+    analogWrite(motorPin, 0);
+  }
+
+  previousValue = value;  // Update the previous value
+}
