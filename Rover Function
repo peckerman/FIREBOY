@@ -1,23 +1,53 @@
-775 Redline Motor
+775 Redline motor for flywheel
 
-#include <Servo.h>
-
-Servo myservo;  // create servo object to control the motor
-
-int pos = 0;    // variable to store the servo position
+#define controlPin 9
+#define buttonPin 2
+#define controlInterval 100
+#define controlGain 0.1
 
 void setup() {
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+  // Set up the control pin as an output
+  pinMode(controlPin, OUTPUT);
+  
+  // Set up the button pin as an input
+  pinMode(buttonPin, INPUT);
 }
 
 void loop() {
-  for (pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
-  }
-  delay(1000);                       // delay for 1 second before launching the ball
-  for (pos = 180; pos >= 0; pos -= 1) { // goes from 180 degrees to 0 degrees
-    myservo.write(pos);              // tell servo to go to position in variable 'pos'
-    delay(15);                       // waits 15ms for the servo to reach the position
+  // Check the state of the button
+  int buttonState = digitalRead(buttonPin);
+  
+  if (buttonState == LOW) {
+    // Calculate the required duty cycle for 6000 RPM
+    float dutyCycle = calculateDutyCycle(6000);
+    
+    // Generate PWM signals on the control pin
+    analogWrite(controlPin, dutyCycle);
+    
+    // Continuously monitor the motor speed and adjust the duty cycle
+    // as necessary to maintain a speed of 6000 RPM
+    while (digitalRead(buttonPin) == LOW) {
+      float currentSpeed = readCurrentSpeed();
+      float error = 6000 - currentSpeed;
+      float newDutyCycle = dutyCycle + error * controlGain;
+      analogWrite(controlPin, newDutyCycle);
+      delay(controlInterval);
+    }
+    
+    // Stop the motor when the button is released
+    analogWrite(controlPin, 0);
   }
 }
+
+float calculateDutyCycle(float targetSpeed) {
+  // Implementation specific to your motor and control circuit
+}
+
+float readCurrentSpeed() {
+  // Implementation specific to your motor and control circuit
+}
+This code sets up a control pin as an output and a button pin as an input. When the button is pressed, the code generates PWM signals on the control pin to control the speed of the motor. The duty cycle of the PWM signals is continuously adjusted based on the difference between the target speed (6600 RPM) and the current speed of the motor, as determined by the readCurrentSpeed function. The calculateDutyCycle function takes the target speed as input and returns the required duty cycle for the PWM signals. The specific implementation of these functions will depend on your specific motor and control circuit. When the button is released, the motor is stopped by setting the duty cycle of the PWM signals to 0.
+
+
+
+
